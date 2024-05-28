@@ -1,0 +1,94 @@
+set.seed(13)
+data <- rbind(c(0, 4, 6, 2, 8, 2, 2, 8, 2),
+              c(3, 0, 5, 1, 7, 1, 2, 3, 5),
+              c(8, 2, 0, 4, 6, 3, 2, 6, 2),
+              c(2, 1, 2, 0, 3, 2, 1, 1, 1),
+              c(4, 3, 4, 6, 0, 2, 7, 2, 5),
+              c(3, 8, 3, 1, 1, 0, 1, 0, 1),
+              c(4, 9, 8, 2, 4, 5, 0, 7, 5),
+              c(3, 3, 2, 2, 5, 7, 4, 0, 4),
+              c(1, 2, 0, 1, 8, 2, 8, 4, 0))
+
+parents <- matrix(1:400, nrow = 40)
+for (wor in 1:40){
+  a <- sample(9)
+  b <- c()
+  for (i in 1:8){
+    b<- c(b,data[a[i],a[i+1]])
+  }
+  t<- sum(b)
+  satır <- c(a,t)
+  
+  parents[wor,] <-satır
+}
+
+parents <-parents[sample(40),]
+
+
+############################################
+# bir iteration 4 li kesiyoruz
+
+#tüm rowlara yap
+#shuffle row
+
+
+
+for (kurt in 1:1000){
+  childs <- matrix(1:400, nrow = 40)
+  
+  for (baba in 1:20){
+    kesme_noktası <- sample(2:5,1)
+    parent1 <- parents[((2*baba)-1),][0:9]
+    parent2 <- parents[(2*baba),][0:9]
+    
+    parent1plus <- c(c(parent1[(kesme_noktası+4):9]),(parent1[1:(kesme_noktası+3)]))
+    parent2plus <- c(c(parent2[(kesme_noktası+4):9]),(parent2[1:(kesme_noktası+3)]))
+    
+    farklılar <- parent1plus[parent1plus %in% c(parent2[(kesme_noktası):(kesme_noktası+3)]) == FALSE]
+    child1 <- c(farklılar[(5-(kesme_noktası-2)):5],c(parent2[(kesme_noktası):(kesme_noktası+3)]),farklılar[1:(9-((kesme_noktası-1)+4))])
+    
+    farklılar <- parent2plus[parent2plus %in% c(parent1[(kesme_noktası):(kesme_noktası+3)]) == FALSE]
+    child2 <- c(farklılar[(5-(kesme_noktası-2)):5],c(parent1[(kesme_noktası):(kesme_noktası+3)]),farklılar[1:(9-((kesme_noktası-1)+4))])
+    
+    b<-c()
+    for (i in 1:8){
+      b<- c(b,data[child1[i],child1[i+1]])
+    }
+    t1<- sum(b)
+    
+    b<-c()
+    for (i in 1:8){
+      b<- c(b,data[child2[i],child2[i+1]])
+    }
+    t2<- sum(b)
+    satır1 <- c(child1,t1)
+    satır2 <- c(child2,t2)
+    
+    a<-((2*baba)-1)
+    b<-(2*baba)
+    
+    childs[a,] <- satır1
+    childs[b,] <- satır2
+    
+  }
+  
+  
+
+  
+  ####################################doğal seleksiyon
+  
+  childs_ordered <- childs[order(childs[,10],decreasing=TRUE),]
+  parents_ordered <- parents[order(parents[,10],decreasing = TRUE),]
+  
+  childs_ordered <- childs_ordered[-c(31:40),]
+  childs_ordered <- rbind(childs_ordered, parents_ordered[1:10,])
+  
+  childs_ordered <- childs_ordered[sample(40),]
+  
+  parents <- childs_ordered 
+}
+  
+parents
+
+
+
